@@ -11,9 +11,13 @@
 
 #define CTRL_KEY(k) ((k) & 0x1f)
 
-/*** date ***/
+/*** data ***/
 
-struct termios original;
+struct editorConfig {
+    struct termios original;
+};
+
+struct editorConfig E;
 
 /*** terminal ***/
 
@@ -26,18 +30,18 @@ void die(const char* s) {
 }
 
 void disableRawMode() {
-    if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &original) == -1) {
+    if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &E.original) == -1) {
         die("tcsetattr");
     }
 }
 
 void enableRawMode() {
-    if (tcgetattr(STDIN_FILENO, &original) == -1) {
+    if (tcgetattr(STDIN_FILENO, &E.original) == -1) {
         die("tcgetattr");
     }
     atexit(disableRawMode);
 
-    struct termios raw = original;
+    struct termios raw = E.original;
 
     raw.c_iflag &= ~(IXON | ICRNL | BRKINT | INPCK | ISTRIP);
     raw.c_oflag &= ~(OPOST);
